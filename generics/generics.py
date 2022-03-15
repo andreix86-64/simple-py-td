@@ -16,3 +16,7 @@ class RenderableObject:
 
     def set_y(self, y):
         self.y = y
+
+class EventListener:
+    def on_event(self):
+        raise NotImplementedError()

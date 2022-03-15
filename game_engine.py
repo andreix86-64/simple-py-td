@@ -37,9 +37,11 @@ class GameEngine:
         while self.running:
             # Parse the events
             for event in pygame.event.get():
-                print(event)
+                # print(event)
                 if event.type == pygame.QUIT:
                     self.running = False
+                if event.type in [pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION]:
+                    pass
 
             self.update()
             self.render()
