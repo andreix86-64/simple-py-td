@@ -1,5 +1,6 @@
 import pygame
 from world.game_world import GameWorld
+from ui.game_ui import GameUI
 import lib.constants as c
 
 
@@ -11,9 +12,10 @@ class GameEngine:
         self.running = True
 
         pygame.init()
-        self.screen = pygame.display.set_mode((self.window_width, self.window_height))
+        self.screen = pygame.display.set_mode((self.window_width, self.window_height))  # type: pygame.Surface
 
         self.world = GameWorld(self)
+        self._game_ui = GameUI(self)
 
     def update(self):
         self.world.update()
@@ -24,6 +26,9 @@ class GameEngine:
         # Render the grid
         self.world.render_grid()
 
+        # Render the UI elements
+        self._game_ui.render()
+
         # Draw the screen
         pygame.display.update()
 
@@ -32,6 +37,7 @@ class GameEngine:
         while self.running:
             # Parse the events
             for event in pygame.event.get():
+                print(event)
                 if event.type == pygame.QUIT:
                     self.running = False
 
