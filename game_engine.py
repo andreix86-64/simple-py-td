@@ -1,5 +1,7 @@
 import pygame
-from world.game_world import GameWorld
+
+from entities.enemy import Enemy
+import world.game_world as gw
 from ui.game_ui import GameUI
 import lib.constants as c
 
@@ -14,17 +16,26 @@ class GameEngine:
         pygame.init()
         self.screen = pygame.display.set_mode((self.window_width, self.window_height))  # type: pygame.Surface
 
-        self.world = GameWorld(self)
+        self.world = gw.GameWorld(self)
         self._game_ui = GameUI(self)
 
     def update(self):
         self.world.update()
 
+        entities = self.world.get_all_entities()
+        for entity in entities:
+            entity.update()
+
     def render(self):
         self.screen.fill(c.BACKGROUND_COLOR)
 
         # Render the grid
-        self.world.render_grid()
+        self.world.render()
+
+        # Render the entities
+        entities = self.world.get_all_entities()
+        for entity in entities:
+            entity.render()
 
         # Render the UI elements
         self._game_ui.render()
@@ -40,7 +51,24 @@ class GameEngine:
                 # print(event)
                 if event.type == pygame.QUIT:
                     self.running = False
-                if event.type in [pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION]:
+                elif event.type == pygame.KEYUP:
+                    # Debug
+                    if event.unicode == 'm':
+                        print('move...')
+                        entities = self.world.get_all_entities()
+                        for entity in entities:
+                            entity.update()
+
+                    elif event.unicode == 's':
+                        print('spawn...')
+
+                        start = self.world.get_start_position()
+                        enemy = Enemy(start[0], start[1], 20, 20, engine=self)
+                        enemy.set_path_to_follow(self.world.enemy_screen_path)
+
+                        self.world.add_entity(enemy, gw.ENEMY)
+
+                elif event.type in [pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION]:
                     pass
 
             self.update()
