@@ -105,8 +105,14 @@ class MovingEntity(Entity):
                 target_x = position[0] - self.width / 2
                 target_y = position[1] - self.height / 2
 
-                dx = +self.velocity if self.x - target_x < 0 else -self.velocity
-                dy = +self.velocity if self.y - target_y < 0 else -self.velocity
+                dx = self.x - target_x
+                dy = self.y - target_y
+
+                if dx != 0:
+                    dx = +self.velocity if dx < 0 else -self.velocity
+
+                if dy != 0:
+                    dy = +self.velocity if dy < 0 else -self.velocity
 
                 self._speed[0] += dx
                 self._speed[1] += dy
