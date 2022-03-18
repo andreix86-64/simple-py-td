@@ -19,5 +19,5 @@ class RenderableObject:
 
 
 class EventListener:
-    def on_event(self):
+    def on_event(self, event):
         raise NotImplementedError()
