@@ -82,7 +82,10 @@ class MovingEntity(Entity):
 
         self._path_to_follow = []  # type: List[(int, int)]
         self._current_path_target_index = -1  # type: int
-        self.velocity = 1
+        self._speed = [0, 0]
+
+        self.tolerance = 3  # type: int
+        self.velocity = 0.25  # type: float
 
     def set_path_to_follow(self, path):
         self._current_path_target_index = 0
@@ -102,9 +105,18 @@ class MovingEntity(Entity):
                 dx = +self.velocity if self.x - position[0] < 0 else -self.velocity
                 dy = +self.velocity if self.y - position[1] < 0 else -self.velocity
 
-                print(self.x, self.y)
+                self._speed[0] += dx
+                self._speed[1] += dy
 
-                self.move(dx, dy)
+                # print(self.x, self.y)
+
+                self.move(self._speed[0], self._speed[1])
+
+                if self._speed[0] >= 1:
+                    self._speed[0] = 0
+                if self._speed[1] >= 1:
+                    self._speed[1] = 0
+
                 # self.set_position(position[0], position[1])
                 # Go to the next position
                 if self.collides_with_point(position):
