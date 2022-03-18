@@ -102,8 +102,11 @@ class MovingEntity(Entity):
                 # print(position)
 
                 # Calculate the new position
-                dx = +self.velocity if self.x - position[0] < 0 else -self.velocity
-                dy = +self.velocity if self.y - position[1] < 0 else -self.velocity
+                target_x = position[0] - self.width / 2
+                target_y = position[1] - self.height / 2
+
+                dx = +self.velocity if self.x - target_x < 0 else -self.velocity
+                dy = +self.velocity if self.y - target_y < 0 else -self.velocity
 
                 self._speed[0] += dx
                 self._speed[1] += dy
