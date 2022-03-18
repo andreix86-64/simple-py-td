@@ -113,9 +113,9 @@ class MovingEntity(Entity):
                 self.move(self._speed[0], self._speed[1])
 
                 if self._speed[0] >= 1:
-                    self._speed[0] = 0
+                    self._speed[0] -= int(self._speed[0])
                 if self._speed[1] >= 1:
-                    self._speed[1] = 0
+                    self._speed[1] -= int(self._speed[1])
 
                 # self.set_position(position[0], position[1])
                 # Go to the next position
