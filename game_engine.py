@@ -1,14 +1,17 @@
 import pygame
 
-from entities.enemy import Enemy
 import world.game_world as gw
 import ui.game_ui as ui
-import ui.game_mouse_controller as gms
+import ui.game_mouse_observer as gms
 import lib.constants as c
+from entities.enemy import Enemy
+from ui.game_tower_manager import GameTowerManager
 
 
 class GameEngine:
     def __init__(self):
+        print('Initializing game engine')
+
         self.window_height = 800
         self.window_width = 800
 
@@ -18,7 +21,8 @@ class GameEngine:
         self.screen = pygame.display.set_mode((self.window_width, self.window_height))  # type: pygame.Surface
         self.world = gw.GameWorld(self)
 
-        self._game_mouse_controller = gms.GameMouseController(self)
+        self.game_mouse_observer = gms.GameMouseObserver(self)
+        self.game_tower_manager = GameTowerManager(self)
         self._game_ui = ui.GameUI(self)
 
     def update(self):
@@ -31,13 +35,11 @@ class GameEngine:
     def render(self):
         self.screen.fill(c.BACKGROUND_COLOR)
 
-        # Render the grid
+        # Render the grid / entities
         self.world.render()
 
-        # Render the entities
-        entities = self.world.get_all_entities()
-        for entity in entities:
-            entity.render()
+        # Render the tower manager
+        self.game_tower_manager.render()
 
         # Render the UI elements
         self._game_ui.render()
@@ -69,11 +71,18 @@ class GameEngine:
 
                         self.world.add_entity(enemy, gw.ENEMY)
 
+                    elif event.unicode == 't':
+                        print('tower ...')
+
+                        start = self.world.get_start_position()
+                        enemy = Enemy(start[0], start[1], 50, 50, engine=self, background_color=c.GREEN)
+                        self.game_tower_manager.start_tower_placement(enemy)
+
                 elif event.type in [pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION]:
                     pass
 
                 # Pass the events ...
-                self._game_mouse_controller.on_event(event)
+                self.game_mouse_observer.on_event(event)
 
             self.update()
             self.render()

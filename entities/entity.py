@@ -1,7 +1,5 @@
 from typing import List
-
 import pygame
-# from game_engine import GameEngine
 import lib.constants as c
 
 
@@ -73,7 +71,10 @@ class Entity:
 
     def render(self):
         """ Renders the entity """
-        pygame.draw.rect(self.engine.screen, c.BLUE, self.rect)
+        pygame.draw.rect(self.engine.screen, self.background_color, self.rect)
+
+    def update(self):
+        pass
 
 
 class MovingEntity(Entity):

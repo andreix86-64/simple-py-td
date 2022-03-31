@@ -1,6 +1,8 @@
 BACKGROUND_COLOR = (255, 255, 0)
 BLUE = (0, 64, 255)
 RED = (222, 23, 56)
+BLACK = (0, 0, 0)
+GREEN = (0,128,0)
 HEADER_FONT = 'Arial'
 
 DEBUG_ENEMY_PATH = True

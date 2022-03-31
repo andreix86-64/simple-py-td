@@ -2,13 +2,13 @@ import math
 from enum import Enum
 import pygame
 import lib.constants as c
-from entities.entity import Entity
+import entities.entity as ent
 from world.path_finder import PathFinder
 
-ENEMY = 0
-TOWER = 1
-PROJECTILE = 2
-GRID = 3
+GRID = 0
+ENEMY = 1
+TOWER = 2
+PROJECTILE = 3
 
 
 class GameWorld:
@@ -43,22 +43,40 @@ class GameWorld:
 
         # TODO: Replace later with quad-trees
         self._entities = [
-            [],     # ENEMY
-            [],     # TOWER
-            [],     # PROJECTILE
-            [],     # GRID
+            [],  # GRID
+            [],  # ENEMY
+            [],  # TOWER
+            [],  # PROJECTILE
         ]
 
         # Grid path of the enemy
         self.enemy_grid_path = self.path_finder.get_single_path(self.start[0], self.finish[0])
-        self.enemy_screen_path = self.compute_screen_path()
+        self.enemy_screen_path = self._compute_screen_path()
+        self._generate_grid_path_entities()
 
     def cell_color(self, i, j):
         if self.grid[i][j] == 1:
             return 10, 10, 10
         return c.BACKGROUND_COLOR
 
-    def compute_screen_path(self):
+    def _generate_grid_path_entities(self):
+        """
+            Generates entities for the path on the grid
+            Used for collision
+        """
+
+        # Reset the entities
+        grid_entities = []
+        for point in self.enemy_grid_path:
+            x = point[1] * self.cell_size
+            y = point[0] * self.cell_size
+
+            grid_entities.append(
+                ent.Entity(x, y, self.cell_size, self.cell_size, engine=self.engine, background_color=c.BLACK))
+
+        self._entities[GRID] = grid_entities
+
+    def _compute_screen_path(self):
         print('Computing screen path ...')
         path = []
         for i in range(len(self.enemy_grid_path)):
@@ -72,22 +90,6 @@ class GameWorld:
         self.enemy_screen_path = path
         return path
 
-    def get_start_position(self):
-        return self.start[0][1] * self.cell_size, self.start[0][0] * self.cell_size
-
-    def get_collision_with_point(self, point):
-        entities = self.get_all_entities()
-        collision = []
-
-        # Entity collision
-        for entity in entities:
-            if entity.collides_with_point(point):
-                collision.append(entity)
-
-        # Grid collision
-
-        return collision
-
     def _update_cell_size(self):
         self.cell_size = math.ceil(self.engine.window_width / self.size)
 
@@ -95,14 +97,39 @@ class GameWorld:
         Public 'getter' functions
     '''
 
+    def get_start_position(self):
+        return self.start[0][1] * self.cell_size, self.start[0][0] * self.cell_size
+
+    def get_collision_with_point(self, point):
+        entities_ = self.get_all_entities()
+        collision = []
+
+        # Entity collision
+        for entity in entities_:
+            if entity.collides_with_point(point):
+                collision.append(entity)
+
+        return collision
+
+    def get_collision_with_entity(self, entity: ent.Entity):
+        entities_ = self.get_all_entities()
+        collision = []
+
+        # Entity collision
+        for entity_ in entities_:
+            if entity_.collides_with_entity(entity):
+                collision.append(entity_)
+
+        return collision
+
     def get_all_entities(self):
-        return self._entities[ENEMY]
+        return [*self._entities[GRID], *self._entities[ENEMY], *self._entities[TOWER]]
 
     '''
         Public 'update' functions
     '''
 
-    def add_entity(self, entity: Entity, type_: int):
+    def add_entity(self, entity: ent.Entity, type_: int):
         self._entities[type_].append(entity)
 
     def update(self):
@@ -118,7 +145,6 @@ class GameWorld:
     '''
 
     def d_render_enemy_path(self):
-        #for i in range(len(self.compute_screen_path()) - 1):
         for i in range(len(self.enemy_screen_path) - 1):
             a = self.enemy_screen_path[i]
             b = self.enemy_screen_path[i + 1]
@@ -131,6 +157,11 @@ class GameWorld:
             for y in range(self.size):
                 pygame.draw.rect(self.screen, self.cell_color(x, y),
                                  pygame.Rect(y * self.cell_size, x * self.cell_size, self.cell_size, self.cell_size))
+
+        # Render the entities
+        entities = self.get_all_entities()
+        for entity in entities:
+            entity.render()
 
         # Debugging:
         if c.DEBUG_ENEMY_PATH:
