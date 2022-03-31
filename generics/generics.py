@@ -21,3 +21,8 @@ class RenderableObject:
 class EventListener:
     def on_event(self, event):
         raise NotImplementedError()
+
+
+class GameEvent:
+    def __init__(self):
+        pass
